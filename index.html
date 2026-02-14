@@ -73,5 +73,187 @@
         </div>
       </div>
     </section>
+
+    <script>
+      // Project: Etch-a-Sketch
+
+// Create containers
+const padContainer = document.getElementById('padContainer');
+const content = document.createElement('div')
+const sketchPad = document.createElement('div')
+const padButtons = document.createElement('div')
+const heading = document.createElement('div');
+
+// heading elements
+const h1 = document.createElement('h1')
+heading.appendChild(h1)
+
+//append to main container
+padContainer.appendChild(heading);
+padContainer.appendChild(content);
+padContainer.appendChild(sketchPad);
+padContainer.appendChild(padButtons);
+
+// buttons
+const blackBtn = document.createElement('button');
+const whiteBtn = document.createElement('button');
+const randomBtn = document.createElement('button');
+const resetBtn = document.createElement('button')
+const gridBtn = document.createElement('button');
+
+// append pad buttons
+padButtons.appendChild(blackBtn);
+padButtons.appendChild(whiteBtn);
+padButtons.appendChild(randomBtn);
+padButtons.appendChild(resetBtn)
+heading.appendChild(gridBtn)
+
+
+// text content
+h1.textContent = 'Etch-a-Sketch Pad';
+blackBtn.textContent = 'Dark';
+whiteBtn.textContent = 'White';
+randomBtn.textContent = 'Random';
+resetBtn.textContent = 'Reset'
+gridBtn.textContent = 'Create New'
+
+// div ids
+sketchPad.id = 'sketchPad';
+heading.id = 'heading';
+padButtons.id = 'padButtons'
+
+// create grid-size
+
+let currentColor = 'black';
+let currentMode = 'darken';
+
+function createGrid(size) {
+    sketchPad.innerHTML = '';
+
+    for (let i = 0; i < size * size; i++) {
+        const square = document.createElement('div');
+
+        square.classList.add('square');
+
+        // create grid-squares
+        square.style.width = `${100 / size}%`;
+        square.style.height = `${100 / size}%`;
+
+        square.addEventListener('mouseover', () => {
+
+            let h, s, l;
+
+            // If no color yet, set initial one
+            if (!square.dataset.h) {
+
+                let baseColor;
+
+                if (currentColor === 'black') {
+                    baseColor = 'rgb(0,0,0)';
+                } else if (currentColor === 'white') {
+                    baseColor = 'rgb(255,255,255)';
+                } else {
+                    baseColor = randomColor();
+                }
+
+                const rgb = baseColor.match(/\d+/g).map(Number);
+                [h, s, l] = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+
+            } else {
+                h = Number(square.dataset.h);
+                s = Number(square.dataset.s);
+                l = Number(square.dataset.l);
+            }
+
+            // Reduce lightness by 10 each hover
+            l = Math.max(l - 10, 0);
+
+            // Store updated values
+            square.dataset.h = h;
+            square.dataset.s = s;
+            square.dataset.l = l;
+
+            square.style.backgroundColor = `hsl(${h}, ${s}%, ${l}%)`;
+        });
+
+
+
+        sketchPad.appendChild(square);
+    }
+}
+createGrid(16);
+
+// Create new grid button
+gridBtn.addEventListener('click', () => {
+    const newGrid = prompt('Enter grid size (max 100)');
+    if (newGrid > 0 && newGrid <= 100) {
+        createGrid(newGrid);
+    } else {
+        alert('Too high, Please enter a number less than 100 and greater than 0');
+    }
+});
+
+// reset grid button
+resetBtn.addEventListener('click', () => {
+    createGrid(16);
+});
+
+// change square color buttons
+blackBtn.addEventListener('click', () => {
+    currentColor = 'black';
+
+});
+
+whiteBtn.addEventListener('click', () => {
+    currentColor = 'white';
+
+});
+
+randomBtn.addEventListener('click', () => {
+    currentColor = 'random';
+
+});
+
+function randomColor() {
+    const red = Math.floor(Math.random() * 256);
+    const green = Math.floor(Math.random() * 256);
+    const blue = Math.floor(Math.random() * 256);
+
+    return `rgb(${red}, ${green}, ${blue})`;
+}
+
+// rgb to hsl for random colors opacity
+
+function rgbToHsl(r, g, b) {
+    r /= 255;
+    g /= 255;
+    b /= 255;
+
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h, s, l = (max + min) / 2;
+
+    if (max === min) {
+        h = s = 0;
+    } else {
+        const d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+        switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+
+        h /= 6;
+    }
+
+    return [
+        Math.round(h * 360),
+        Math.round(s * 100),
+        Math.round(l * 100)
+    ];
+}
+    </script>
   </body>
 </html>
